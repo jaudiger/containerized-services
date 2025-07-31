@@ -1,0 +1,68 @@
+x-elasticsearch-environment: &elasticsearch-environment
+  ELASTIC_PASSWORD: ""
+  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+  bootstrap.memory_lock: "true"
+  cluster.initial_master_nodes: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
+  cluster.name: "elasticsearch-cluster"
+  discovery.seed_hosts: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
+  network.host: "0.0.0.0"
+  xpack.security.enabled: "false"
+
+x-elasticsearch-common: &elasticsearch-common
+  image: docker.io/elasticsearch:9.0.4
+  restart: unless-stopped
+  entrypoint: /usr/local/bin/docker-entrypoint.sh eswrapper
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      - |
+        curl -s -u elastic:$${ELASTIC_PASSWORD} http://127.0.0.1:9200/_cluster/health | grep -E '"status":"(green|yellow)"'
+    interval: 10s
+    timeout: 5s
+    retries: 3
+
+services:
+  elasticsearch-1:
+    <<: *elasticsearch-common
+    environment:
+      <<: *elasticsearch-environment
+      node.name: "elasticsearch-1"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-1-data:/usr/share/elasticsearch/data
+
+  elasticsearch-2:
+    <<: *elasticsearch-common
+    environment:
+      <<: *elasticsearch-environment
+      node.name: "elasticsearch-2"
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    volumes:
+      - elasticsearch-2-data:/usr/share/elasticsearch/data
+
+  elasticsearch-3:
+    <<: *elasticsearch-common
+    environment:
+      <<: *elasticsearch-environment
+      node.name: "elasticsearch-3"
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    volumes:
+      - elasticsearch-3-data:/usr/share/elasticsearch/data
+
+volumes:
+  elasticsearch-1-data:
+    driver: local
+  elasticsearch-2-data:
+    driver: local
+  elasticsearch-3-data:
+    driver: local

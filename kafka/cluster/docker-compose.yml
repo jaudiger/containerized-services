@@ -1,0 +1,68 @@
+x-kafka-common: &kafka-common
+  image: docker.io/apache/kafka:4.0.0
+  restart: unless-stopped
+  entrypoint: >
+    bash -c '
+      if [ ! -f /var/lib/kafka/data/meta.properties ]; then
+        /opt/kafka/bin/kafka-storage.sh format --ignore-formatted --cluster-id "$${KAFKA_KRAFT_CLUSTER_ID}" --config /etc/kafka/server.properties
+      fi
+      exec /opt/kafka/bin/kafka-server-start.sh /etc/kafka/server.properties
+    '
+  environment:
+    KAFKA_KRAFT_CLUSTER_ID: 4qSrjHzBT8GBUpE6fHa6sg
+    KAFKA_JVM_PERFORMANCE_OPTS: "-Xms1g -Xmx1g"
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      - |
+        kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:9092 2>/dev/null | grep -q 'version:'
+    interval: 10s
+    timeout: 5s
+    retries: 3
+
+services:
+  kafka-1:
+    <<: *kafka-common
+    ports:
+      - "9092:9092"
+    configs:
+      - source: kafka-1-cfg
+        target: /etc/kafka/server.properties
+    volumes:
+      - kafka-1-data:/var/lib/kafka
+
+  kafka-2:
+    <<: *kafka-common
+    ports:
+      - "9093:9092"
+    configs:
+      - source: kafka-2-cfg
+        target: /etc/kafka/server.properties
+    volumes:
+      - kafka-2-data:/var/lib/kafka
+
+  kafka-3:
+    <<: *kafka-common
+    ports:
+      - "9094:9092"
+    configs:
+      - source: kafka-3-cfg
+        target: /etc/kafka/server.properties
+    volumes:
+      - kafka-3-data:/var/lib/kafka
+
+configs:
+  kafka-1-cfg:
+    file: ./config/server-1.properties
+  kafka-2-cfg:
+    file: ./config/server-2.properties
+  kafka-3-cfg:
+    file: ./config/server-3.properties
+
+volumes:
+  kafka-1-data:
+    driver: local
+  kafka-2-data:
+    driver: local
+  kafka-3-data:
+    driver: local

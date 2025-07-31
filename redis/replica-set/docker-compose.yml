@@ -1,0 +1,51 @@
+x-redis-common: &redis-common
+  image: docker.io/redis:8.0.3
+  restart: unless-stopped
+  entrypoint: redis-server /usr/local/etc/redis/redis.conf
+  environment:
+    REDIS_ADDR: "redis://127.0.0.1"
+    REDIS_PORT: "6379"
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      - |
+        redis-cli -p $${REDIS_PORT} ping | grep PONG
+    interval: 10s
+    timeout: 5s
+    retries: 3
+
+services:
+  redis-primary:
+    <<: *redis-common
+    ports:
+      - "6379:6379"
+    configs:
+      - source: redis-primary-cfg
+        target: /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-primary-data:/data
+
+  redis-replica:
+    <<: *redis-common
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    ports:
+      - "6380:6379"
+    configs:
+      - source: redis-replica-cfg
+        target: /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-replica-data:/data
+
+configs:
+  redis-primary-cfg:
+    file: ./config/redis-primary.conf
+  redis-replica-cfg:
+    file: ./config/redis-replica.conf
+
+volumes:
+  redis-primary-data:
+    driver: local
+  redis-replica-data:
+    driver: local

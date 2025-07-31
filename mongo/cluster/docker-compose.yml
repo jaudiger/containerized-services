@@ -1,0 +1,120 @@
+x-mongo-common: &mongo-common
+  image: docker.io/mongo:8.0.12
+  restart: unless-stopped
+  command:
+    - "mongod"
+    - "--config"
+    - "/etc/mongo/mongod.conf"
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: "root"
+    MONGO_INITDB_ROOT_PASSWORD: "password"
+    MONGO_PORT: "27017"
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      - |
+        mongosh --quiet --eval "db.runCommand({ ping: 1 }).ok" | grep 1
+    interval: 10s
+    timeout: 5s
+    retries: 3
+
+services:
+  mongo-pre-init:
+    image: docker.io/mongo:8.0.12
+    restart: no
+    entrypoint: >
+      bash -c '
+        # Check if the security key exists
+        if [ -f /etc/mongo/security/key ]; then
+          exit 0
+        fi
+
+        openssl rand -base64 756 > /etc/mongo/security/key
+        chmod 400 /etc/mongo/security/key
+        chown mongodb:mongodb /etc/mongo/security/key
+      '
+    volumes:
+      - mongo-security:/etc/mongo/security
+
+  mongo-primary:
+    <<: *mongo-common
+    depends_on:
+      mongo-pre-init:
+        condition: service_completed_successfully
+    ports:
+      - "27017:27017"
+    configs:
+      - source: mongo-primary-cfg
+        target: /etc/mongo/mongod.conf
+    volumes:
+      - mongo-security:/etc/mongo/security
+      - mongo-primary-data:/data/db
+
+  mongo-secondary-1:
+    <<: *mongo-common
+    depends_on:
+      mongo-pre-init:
+        condition: service_completed_successfully
+    ports:
+      - "27018:27017"
+    configs:
+      - source: mongo-secondary-cfg
+        target: /etc/mongo/mongod.conf
+    volumes:
+      - mongo-security:/etc/mongo/security
+      - mongo-secondary-1-data:/data/db
+
+  mongo-secondary-2:
+    <<: *mongo-common
+    depends_on:
+      mongo-pre-init:
+        condition: service_completed_successfully
+    ports:
+      - "27019:27017"
+    configs:
+      - source: mongo-secondary-cfg
+        target: /etc/mongo/mongod.conf
+    volumes:
+      - mongo-security:/etc/mongo/security
+      - mongo-secondary-2-data:/data/db
+
+  mongo-post-init:
+    image: docker.io/mongo:8.0.12
+    restart: no
+    depends_on:
+      mongo-primary:
+        condition: service_healthy
+      mongo-secondary-1:
+        condition: service_healthy
+      mongo-secondary-2:
+        condition: service_healthy
+    entrypoint: >
+      bash -c '
+        mongosh --host mongo-primary --username root --password password --authenticationDatabase admin --eval "
+          rs.initiate({
+            _id: \"mongoReplicaSet\",
+            members: [
+              { _id: 0, host: \"mongo-primary:27017\" },
+              { _id: 1, host: \"mongo-secondary-1:27017\" },
+              { _id: 2, host: \"mongo-secondary-2:27017\" }
+            ]
+          });
+          rs.status();
+        ";
+      '
+
+configs:
+  mongo-primary-cfg:
+    file: ./config/mongod-primary.conf
+  mongo-secondary-cfg:
+    file: ./config/mongod-secondary.conf
+
+volumes:
+  mongo-security:
+    driver: local
+  mongo-primary-data:
+    driver: local
+  mongo-secondary-1-data:
+    driver: local
+  mongo-secondary-2-data:
+    driver: local

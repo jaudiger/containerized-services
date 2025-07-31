@@ -1,0 +1,6 @@
+logging.root.level: info
+path.data: /usr/share/kibana/data
+server.name: kibana
+server.host: "0.0.0.0"
+server.publicBaseUrl: "http://127.0.0.1:5601"
+server.shutdownTimeout: 30s

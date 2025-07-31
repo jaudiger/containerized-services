@@ -1,0 +1,36 @@
+x-grafana-common: &grafana-common
+  image: docker.io/grafana/grafana:12.2.0-16636675413
+  restart: unless-stopped
+  user: "472"
+  environment:
+    GF_SECURITY_ADMIN_USER: "admin"
+    GF_SECURITY_ADMIN_PASSWORD: "password"
+    GF_INSTALL_PLUGINS: ""
+  healthcheck:
+    test:
+      - "CMD"
+      - "curl"
+      - "-f"
+      - "http://127.0.0.1:3000/api/health"
+    interval: 10s
+    timeout: 5s
+    retries: 3
+
+services:
+  grafana:
+    <<: *grafana-common
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    configs:
+      - source: grafana-cfg
+        target: /etc/grafana/grafana.ini
+
+configs:
+  grafana-cfg:
+    file: ./config/grafana.ini
+
+volumes:
+  grafana-data:
+    driver: local

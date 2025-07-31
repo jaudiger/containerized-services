@@ -1,0 +1,37 @@
+x-vault-common: &vault-common
+  image: hashicorp/vault:1.20.1
+  restart: unless-stopped
+  cap_add:
+    - IPC_LOCK
+  user: root
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:8200"
+  healthcheck:
+    test:
+      - "CMD"
+      - "curl"
+      - "-fs"
+      - "http://127.0.0.1:8200/v1/sys/health"
+    interval: 10s
+    timeout: 5s
+    retries: 3
+
+services:
+  vault:
+    <<: *vault-common
+    entrypoint: vault server -config=/etc/vault/vault.hcl
+    ports:
+      - "8200:8200"
+    configs:
+      - source: vault-cfg
+        target: /etc/vault/vault.hcl
+    volumes:
+      - vault-data:/vault/data
+
+configs:
+  vault-cfg:
+    file: ./config/vault.hcl
+
+volumes:
+  vault-data:
+    driver: local
