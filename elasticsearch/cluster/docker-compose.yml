@@ -9,7 +9,7 @@ x-elasticsearch-environment: &elasticsearch-environment
   xpack.security.enabled: "false"
 
 x-elasticsearch-common: &elasticsearch-common
-  image: docker.io/elasticsearch:9.0.4
+  image: docker.io/elasticsearch:9.1.0
   restart: unless-stopped
   entrypoint: /usr/local/bin/docker-entrypoint.sh eswrapper
   ulimits:
