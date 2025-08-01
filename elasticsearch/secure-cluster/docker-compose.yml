@@ -14,7 +14,7 @@ x-elasticsearch-environment: &elasticsearch-environment
   xpack.security.http.ssl.certificate_authorities: "certs/ca/ca.crt"
 
 x-elasticsearch-common: &elasticsearch-common
-  image: docker.io/elasticsearch:9.0.4
+  image: docker.io/elasticsearch:9.1.0
   restart: unless-stopped
   entrypoint: /usr/local/bin/docker-entrypoint.sh eswrapper
   ulimits:
@@ -32,7 +32,7 @@ x-elasticsearch-common: &elasticsearch-common
 
 services:
   elasticsearch-init:
-    image: docker.io/elasticsearch:9.0.4
+    image: docker.io/elasticsearch:9.1.0
     restart: no
     user: root
     entrypoint: >
