@@ -1,7 +1,16 @@
 version: 2
 updates:
   - package-ecosystem: "docker-compose"
-    directory: "/"
+    directories:
+      - "/elasticsearch/**"
+      - "/grafana/**"
+      - "/jaeger/**"
+      - "/kafka/**"
+      - "/kibana/**"
+      - "/mongo/**"
+      - "/prometheus/**"
+      - "/redis/**"
+      - "/vault/**"
     schedule:
       interval: "weekly"
       day: "sunday"
