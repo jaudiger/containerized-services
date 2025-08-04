@@ -19,68 +19,8 @@ x-mongo-common: &mongo-common
     retries: 3
 
 services:
-  mongo-pre-init:
-    image: docker.io/mongo:8.0.12
-    restart: no
-    entrypoint: >
-      bash -c '
-        # Check if the security key exists
-        if [ -f /etc/mongo/security/key ]; then
-          exit 0
-        fi
-
-        openssl rand -base64 756 > /etc/mongo/security/key
-        chmod 400 /etc/mongo/security/key
-        chown mongodb:mongodb /etc/mongo/security/key
-      '
-    volumes:
-      - mongo-security:/etc/mongo/security
-
-  mongo-primary:
-    <<: *mongo-common
-    depends_on:
-      mongo-pre-init:
-        condition: service_completed_successfully
-    ports:
-      - "27017:27017"
-    configs:
-      - source: mongo-primary-cfg
-        target: /etc/mongo/mongod.conf
-    volumes:
-      - mongo-security:/etc/mongo/security
-      - mongo-primary-data:/data/db
-
-  mongo-secondary-1:
-    <<: *mongo-common
-    depends_on:
-      mongo-pre-init:
-        condition: service_completed_successfully
-    ports:
-      - "27018:27017"
-    configs:
-      - source: mongo-secondary-cfg
-        target: /etc/mongo/mongod.conf
-    volumes:
-      - mongo-security:/etc/mongo/security
-      - mongo-secondary-1-data:/data/db
-
-  mongo-secondary-2:
-    <<: *mongo-common
-    depends_on:
-      mongo-pre-init:
-        condition: service_completed_successfully
-    ports:
-      - "27019:27017"
-    configs:
-      - source: mongo-secondary-cfg
-        target: /etc/mongo/mongod.conf
-    volumes:
-      - mongo-security:/etc/mongo/security
-      - mongo-secondary-2-data:/data/db
-
   mongo-post-init:
     image: docker.io/mongo:8.0.12
-    restart: no
     depends_on:
       mongo-primary:
         condition: service_healthy
@@ -102,12 +42,66 @@ services:
           rs.status();
         ";
       '
+    restart: no
 
-configs:
-  mongo-primary-cfg:
-    file: ./config/mongod-primary.conf
-  mongo-secondary-cfg:
-    file: ./config/mongod-secondary.conf
+  mongo-pre-init:
+    image: docker.io/mongo:8.0.12
+    volumes:
+      - mongo-security:/etc/mongo/security
+    entrypoint: >
+      bash -c '
+        # Check if the security key exists
+        if [ -f /etc/mongo/security/key ]; then
+          exit 0
+        fi
+
+        openssl rand -base64 756 > /etc/mongo/security/key
+        chmod 400 /etc/mongo/security/key
+        chown mongodb:mongodb /etc/mongo/security/key
+      '
+    restart: no
+
+  mongo-primary:
+    depends_on:
+      mongo-pre-init:
+        condition: service_completed_successfully
+    volumes:
+      - mongo-security:/etc/mongo/security
+      - mongo-primary-data:/data/db
+    configs:
+      - source: mongo-primary-cfg
+        target: /etc/mongo/mongod.conf
+    ports:
+      - "27017:27017"
+    <<: *mongo-common
+
+  mongo-secondary-1:
+    depends_on:
+      mongo-pre-init:
+        condition: service_completed_successfully
+    volumes:
+      - mongo-security:/etc/mongo/security
+      - mongo-secondary-1-data:/data/db
+    configs:
+      - source: mongo-secondary-cfg
+        target: /etc/mongo/mongod.conf
+    ports:
+      - "27018:27017"
+    <<: *mongo-common
+
+  mongo-secondary-2:
+    depends_on:
+      mongo-pre-init:
+        condition: service_completed_successfully
+    volumes:
+      - mongo-security:/etc/mongo/security
+      - mongo-secondary-2-data:/data/db
+    configs:
+      - source: mongo-secondary-cfg
+        target: /etc/mongo/mongod.conf
+    ports:
+      - "27019:27017"
+    <<: *mongo-common
 
 volumes:
   mongo-security:
@@ -118,3 +112,9 @@ volumes:
     driver: local
   mongo-secondary-2-data:
     driver: local
+
+configs:
+  mongo-primary-cfg:
+    file: ./config/mongod-primary.conf
+  mongo-secondary-cfg:
+    file: ./config/mongod-secondary.conf

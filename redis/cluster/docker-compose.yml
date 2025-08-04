@@ -12,42 +12,8 @@ x-redis-common: &redis-common
     retries: 3
 
 services:
-  redis-node-1:
-    <<: *redis-common
-    ports:
-      - "6379:6379"
-      - "16379:16379"
-    configs:
-      - source: redis-node-1-cfg
-        target: /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-node-1-data:/data
-
-  redis-node-2:
-    <<: *redis-common
-    ports:
-      - "6380:6379"
-      - "16380:16379"
-    configs:
-      - source: redis-node-2-cfg
-        target: /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-node-2-data:/data
-
-  redis-node-3:
-    <<: *redis-common
-    ports:
-      - "6382:6379"
-      - "16382:16379"
-    configs:
-      - source: redis-node-3-cfg
-        target: /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-node-3-data:/data
-
   redis-init:
     image: docker.io/redis:8.0.3
-    restart: "no"
     depends_on:
       redis-node-1:
         condition: service_started
@@ -56,14 +22,40 @@ services:
       redis-node-3:
         condition: service_started
     entrypoint: redis-cli --cluster create redis-node-1:6379 redis-node-2:6379 redis-node-3:6379 --cluster-replicas 0 --cluster-yes
+    restart: "no"
 
-configs:
-  redis-node-1-cfg:
-    file: ./config/redis-node-1.conf
-  redis-node-2-cfg:
-    file: ./config/redis-node-2.conf
-  redis-node-3-cfg:
-    file: ./config/redis-node-3.conf
+  redis-node-1:
+    volumes:
+      - redis-node-1-data:/data
+    configs:
+      - source: redis-node-1-cfg
+        target: /usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+      - "16379:16379"
+    <<: *redis-common
+
+  redis-node-2:
+    volumes:
+      - redis-node-2-data:/data
+    configs:
+      - source: redis-node-2-cfg
+        target: /usr/local/etc/redis/redis.conf
+    ports:
+      - "6380:6379"
+      - "16380:16379"
+    <<: *redis-common
+
+  redis-node-3:
+    volumes:
+      - redis-node-3-data:/data
+    configs:
+      - source: redis-node-3-cfg
+        target: /usr/local/etc/redis/redis.conf
+    ports:
+      - "6382:6379"
+      - "16382:16379"
+    <<: *redis-common
 
 volumes:
   redis-node-1-data:
@@ -72,3 +64,11 @@ volumes:
     driver: local
   redis-node-3-data:
     driver: local
+
+configs:
+  redis-node-1-cfg:
+    file: ./config/redis-node-1.conf
+  redis-node-2-cfg:
+    file: ./config/redis-node-2.conf
+  redis-node-3-cfg:
+    file: ./config/redis-node-3.conf

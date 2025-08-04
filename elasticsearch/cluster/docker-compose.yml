@@ -1,13 +1,3 @@
-x-elasticsearch-environment: &elasticsearch-environment
-  ELASTIC_PASSWORD: ""
-  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
-  bootstrap.memory_lock: "true"
-  cluster.initial_master_nodes: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
-  cluster.name: "elasticsearch-cluster"
-  discovery.seed_hosts: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
-  network.host: "0.0.0.0"
-  xpack.security.enabled: "false"
-
 x-elasticsearch-common: &elasticsearch-common
   image: docker.io/elasticsearch:9.1.0
   restart: unless-stopped
@@ -25,39 +15,49 @@ x-elasticsearch-common: &elasticsearch-common
     timeout: 5s
     retries: 3
 
+x-elasticsearch-environment: &elasticsearch-environment
+  ELASTIC_PASSWORD: ""
+  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+  bootstrap.memory_lock: "true"
+  cluster.initial_master_nodes: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
+  cluster.name: "elasticsearch-cluster"
+  discovery.seed_hosts: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
+  network.host: "0.0.0.0"
+  xpack.security.enabled: "false"
+
 services:
   elasticsearch-1:
-    <<: *elasticsearch-common
+    volumes:
+      - elasticsearch-1-data:/usr/share/elasticsearch/data
     environment:
       <<: *elasticsearch-environment
       node.name: "elasticsearch-1"
     ports:
       - "9200:9200"
       - "9300:9300"
-    volumes:
-      - elasticsearch-1-data:/usr/share/elasticsearch/data
+    <<: *elasticsearch-common
 
   elasticsearch-2:
-    <<: *elasticsearch-common
+    volumes:
+      - elasticsearch-2-data:/usr/share/elasticsearch/data
     environment:
       <<: *elasticsearch-environment
       node.name: "elasticsearch-2"
     ports:
       - "9201:9200"
       - "9301:9300"
-    volumes:
-      - elasticsearch-2-data:/usr/share/elasticsearch/data
+    <<: *elasticsearch-common
 
   elasticsearch-3:
-    <<: *elasticsearch-common
+    volumes:
+      - elasticsearch-3-data:/usr/share/elasticsearch/data
     environment:
       <<: *elasticsearch-environment
       node.name: "elasticsearch-3"
     ports:
       - "9202:9200"
       - "9302:9300"
-    volumes:
-      - elasticsearch-3-data:/usr/share/elasticsearch/data
+    <<: *elasticsearch-common
 
 volumes:
   elasticsearch-1-data:

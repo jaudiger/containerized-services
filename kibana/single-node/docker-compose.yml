@@ -18,19 +18,19 @@ x-kibana-common: &kibana-common
 
 services:
   kibana:
-    <<: *kibana-common
-    ports:
-      - "5601:5601"
+    volumes:
+      - kibana-data:/usr/share/kibana/data
     configs:
       - source: kibana-cfg
         target: /usr/share/kibana/config/kibana.yml
-    volumes:
-      - kibana-data:/usr/share/kibana/data
-
-configs:
-  kibana-cfg:
-    file: ./config/kibana.yml
+    ports:
+      - "5601:5601"
+    <<: *kibana-common
 
 volumes:
   kibana-data:
     driver: local
+
+configs:
+  kibana-cfg:
+    file: ./config/kibana.yml

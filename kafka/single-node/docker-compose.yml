@@ -22,19 +22,19 @@ x-kafka-common: &kafka-common
 
 services:
   kafka:
-    <<: *kafka-common
-    ports:
-      - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka
     configs:
       - source: kafka-cfg
         target: /etc/kafka/server.properties
-    volumes:
-      - kafka-data:/var/lib/kafka
-
-configs:
-  kafka-cfg:
-    file: ./config/server.properties
+    ports:
+      - "9092:9092"
+    <<: *kafka-common
 
 volumes:
   kafka-data:
     driver: local
+
+configs:
+  kafka-cfg:
+    file: ./config/server.properties

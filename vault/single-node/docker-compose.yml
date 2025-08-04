@@ -18,20 +18,20 @@ x-vault-common: &vault-common
 
 services:
   vault:
-    <<: *vault-common
-    entrypoint: vault server -config=/etc/vault/vault.hcl
-    ports:
-      - "8200:8200"
+    volumes:
+      - vault-data:/vault/data
     configs:
       - source: vault-cfg
         target: /etc/vault/vault.hcl
-    volumes:
-      - vault-data:/vault/data
-
-configs:
-  vault-cfg:
-    file: ./config/vault.hcl
+    ports:
+      - "8200:8200"
+    entrypoint: vault server -config=/etc/vault/vault.hcl
+    <<: *vault-common
 
 volumes:
   vault-data:
     driver: local
+
+configs:
+  vault-cfg:
+    file: ./config/vault.hcl

@@ -1,12 +1,3 @@
-x-elasticsearch-environment: &elasticsearch-environment
-  ELASTIC_PASSWORD: ""
-  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
-  bootstrap.memory_lock: "true"
-  cluster.name: "elasticsearch-cluster"
-  discovery.type: "single-node"
-  network.host: "0.0.0.0"
-  xpack.security.enabled: "false"
-
 x-elasticsearch-common: &elasticsearch-common
   image: docker.io/elasticsearch:9.1.0
   restart: unless-stopped
@@ -24,17 +15,26 @@ x-elasticsearch-common: &elasticsearch-common
     timeout: 5s
     retries: 3
 
+x-elasticsearch-environment: &elasticsearch-environment
+  ELASTIC_PASSWORD: ""
+  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+  bootstrap.memory_lock: "true"
+  cluster.name: "elasticsearch-cluster"
+  discovery.type: "single-node"
+  network.host: "0.0.0.0"
+  xpack.security.enabled: "false"
+
 services:
   elasticsearch:
-    <<: *elasticsearch-common
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
     environment:
       <<: *elasticsearch-environment
       node.name: elasticsearch
     ports:
       - "9200:9200"
       - "9300:9300"
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+    <<: *elasticsearch-common
 
 volumes:
   elasticsearch-data:

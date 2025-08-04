@@ -22,42 +22,34 @@ x-kafka-common: &kafka-common
 
 services:
   kafka-1:
-    <<: *kafka-common
-    ports:
-      - "9092:9092"
+    volumes:
+      - kafka-1-data:/var/lib/kafka
     configs:
       - source: kafka-1-cfg
         target: /etc/kafka/server.properties
-    volumes:
-      - kafka-1-data:/var/lib/kafka
+    ports:
+      - "9092:9092"
+    <<: *kafka-common
 
   kafka-2:
-    <<: *kafka-common
-    ports:
-      - "9093:9092"
+    volumes:
+      - kafka-2-data:/var/lib/kafka
     configs:
       - source: kafka-2-cfg
         target: /etc/kafka/server.properties
-    volumes:
-      - kafka-2-data:/var/lib/kafka
+    ports:
+      - "9093:9092"
+    <<: *kafka-common
 
   kafka-3:
-    <<: *kafka-common
-    ports:
-      - "9094:9092"
+    volumes:
+      - kafka-3-data:/var/lib/kafka
     configs:
       - source: kafka-3-cfg
         target: /etc/kafka/server.properties
-    volumes:
-      - kafka-3-data:/var/lib/kafka
-
-configs:
-  kafka-1-cfg:
-    file: ./config/server-1.properties
-  kafka-2-cfg:
-    file: ./config/server-2.properties
-  kafka-3-cfg:
-    file: ./config/server-3.properties
+    ports:
+      - "9094:9092"
+    <<: *kafka-common
 
 volumes:
   kafka-1-data:
@@ -66,3 +58,11 @@ volumes:
     driver: local
   kafka-3-data:
     driver: local
+
+configs:
+  kafka-1-cfg:
+    file: ./config/server-1.properties
+  kafka-2-cfg:
+    file: ./config/server-2.properties
+  kafka-3-cfg:
+    file: ./config/server-3.properties

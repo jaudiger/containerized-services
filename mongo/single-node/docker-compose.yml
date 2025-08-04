@@ -20,19 +20,19 @@ x-mongo-common: &mongo-common
 
 services:
   mongo:
-    <<: *mongo-common
-    ports:
-      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
     configs:
       - source: mongo-cfg
         target: /etc/mongo/mongod.conf
-    volumes:
-      - mongo-data:/data/db
-
-configs:
-  mongo-cfg:
-    file: ./config/mongod.conf
+    ports:
+      - "27017:27017"
+    <<: *mongo-common
 
 volumes:
   mongo-data:
     driver: local
+
+configs:
+  mongo-cfg:
+    file: ./config/mongod.conf

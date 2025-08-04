@@ -16,36 +16,36 @@ x-redis-common: &redis-common
 
 services:
   redis-primary:
-    <<: *redis-common
-    ports:
-      - "6379:6379"
+    volumes:
+      - redis-primary-data:/data
     configs:
       - source: redis-primary-cfg
         target: /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-primary-data:/data
+    ports:
+      - "6379:6379"
+    <<: *redis-common
 
   redis-replica:
-    <<: *redis-common
     depends_on:
       redis-primary:
         condition: service_healthy
-    ports:
-      - "6380:6379"
+    volumes:
+      - redis-replica-data:/data
     configs:
       - source: redis-replica-cfg
         target: /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-replica-data:/data
-
-configs:
-  redis-primary-cfg:
-    file: ./config/redis-primary.conf
-  redis-replica-cfg:
-    file: ./config/redis-replica.conf
+    ports:
+      - "6380:6379"
+    <<: *redis-common
 
 volumes:
   redis-primary-data:
     driver: local
   redis-replica-data:
     driver: local
+
+configs:
+  redis-primary-cfg:
+    file: ./config/redis-primary.conf
+  redis-replica-cfg:
+    file: ./config/redis-replica.conf

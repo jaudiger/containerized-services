@@ -1,18 +1,3 @@
-x-elasticsearch-environment: &elasticsearch-environment
-  ELASTIC_PASSWORD: "password"
-  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
-  bootstrap.memory_lock: "true"
-  cluster.initial_master_nodes: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
-  cluster.name: "elasticsearch-cluster"
-  discovery.seed_hosts: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
-  network.host: "0.0.0.0"
-  xpack.security.enabled: "true"
-  xpack.security.transport.ssl.enabled: "true"
-  xpack.security.transport.ssl.verification_mode: "certificate"
-  xpack.security.transport.ssl.certificate_authorities: "certs/ca/ca.crt"
-  xpack.security.http.ssl.enabled: "true"
-  xpack.security.http.ssl.certificate_authorities: "certs/ca/ca.crt"
-
 x-elasticsearch-common: &elasticsearch-common
   image: docker.io/elasticsearch:9.1.0
   restart: unless-stopped
@@ -30,11 +15,82 @@ x-elasticsearch-common: &elasticsearch-common
     timeout: 5s
     retries: 3
 
+x-elasticsearch-environment: &elasticsearch-environment
+  ELASTIC_PASSWORD: "password"
+  ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+  bootstrap.memory_lock: "true"
+  cluster.initial_master_nodes: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
+  cluster.name: "elasticsearch-cluster"
+  discovery.seed_hosts: "elasticsearch-1,elasticsearch-2,elasticsearch-3"
+  network.host: "0.0.0.0"
+  xpack.security.enabled: "true"
+  xpack.security.transport.ssl.enabled: "true"
+  xpack.security.transport.ssl.verification_mode: "certificate"
+  xpack.security.transport.ssl.certificate_authorities: "certs/ca/ca.crt"
+  xpack.security.http.ssl.enabled: "true"
+  xpack.security.http.ssl.certificate_authorities: "certs/ca/ca.crt"
+
 services:
+  elasticsearch-1:
+    depends_on:
+      elasticsearch-init:
+        condition: service_completed_successfully
+    volumes:
+      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
+      - elasticsearch-1-data:/usr/share/elasticsearch/data
+    environment:
+      <<: *elasticsearch-environment
+      node.name: "elasticsearch-1"
+      xpack.security.transport.ssl.certificate: "certs/elasticsearch-1/elasticsearch-1.crt"
+      xpack.security.transport.ssl.key: "certs/elasticsearch-1/elasticsearch-1.key"
+      xpack.security.http.ssl.certificate: "certs/elasticsearch-1/elasticsearch-1.crt"
+      xpack.security.http.ssl.key: "certs/elasticsearch-1/elasticsearch-1.key"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    <<: *elasticsearch-common
+
+  elasticsearch-2:
+    depends_on:
+      elasticsearch-init:
+        condition: service_completed_successfully
+    volumes:
+      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
+      - elasticsearch-2-data:/usr/share/elasticsearch/data
+    environment:
+      <<: *elasticsearch-environment
+      node.name: "elasticsearch-2"
+      xpack.security.transport.ssl.certificate: "certs/elasticsearch-2/elasticsearch-2.crt"
+      xpack.security.transport.ssl.key: "certs/elasticsearch-2/elasticsearch-2.key"
+      xpack.security.http.ssl.certificate: "certs/elasticsearch-2/elasticsearch-2.crt"
+      xpack.security.http.ssl.key: "certs/elasticsearch-2/elasticsearch-2.key"
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    <<: *elasticsearch-common
+
+  elasticsearch-3:
+    depends_on:
+      elasticsearch-init:
+        condition: service_completed_successfully
+    volumes:
+      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
+      - elasticsearch-3-data:/usr/share/elasticsearch/data
+    environment:
+      <<: *elasticsearch-environment
+      node.name: "elasticsearch-3"
+      xpack.security.transport.ssl.certificate: "certs/elasticsearch-3/elasticsearch-3.crt"
+      xpack.security.transport.ssl.key: "certs/elasticsearch-3/elasticsearch-3.key"
+      xpack.security.http.ssl.certificate: "certs/elasticsearch-3/elasticsearch-3.crt"
+      xpack.security.http.ssl.key: "certs/elasticsearch-3/elasticsearch-3.key"
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    <<: *elasticsearch-common
   elasticsearch-init:
     image: docker.io/elasticsearch:9.1.0
-    restart: no
-    user: root
+    volumes:
+      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
     entrypoint: >
       bash -c '
         # Check if the certificates exist
@@ -60,65 +116,8 @@ services:
         /usr/share/elasticsearch/bin/elasticsearch-certutil cert --silent --pem --in /tmp/instances.yml --out /tmp/certs/certs.zip --ca-cert /usr/share/elasticsearch/config/certs/ca/ca.crt --ca-key /usr/share/elasticsearch/config/certs/ca/ca.key
         unzip /tmp/certs/certs.zip -d /usr/share/elasticsearch/config/certs
       '
-    volumes:
-      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
-
-  elasticsearch-1:
-    <<: *elasticsearch-common
-    depends_on:
-      elasticsearch-init:
-        condition: service_completed_successfully
-    environment:
-      <<: *elasticsearch-environment
-      node.name: "elasticsearch-1"
-      xpack.security.transport.ssl.certificate: "certs/elasticsearch-1/elasticsearch-1.crt"
-      xpack.security.transport.ssl.key: "certs/elasticsearch-1/elasticsearch-1.key"
-      xpack.security.http.ssl.certificate: "certs/elasticsearch-1/elasticsearch-1.crt"
-      xpack.security.http.ssl.key: "certs/elasticsearch-1/elasticsearch-1.key"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
-      - elasticsearch-1-data:/usr/share/elasticsearch/data
-
-  elasticsearch-2:
-    <<: *elasticsearch-common
-    depends_on:
-      elasticsearch-init:
-        condition: service_completed_successfully
-    environment:
-      <<: *elasticsearch-environment
-      node.name: "elasticsearch-2"
-      xpack.security.transport.ssl.certificate: "certs/elasticsearch-2/elasticsearch-2.crt"
-      xpack.security.transport.ssl.key: "certs/elasticsearch-2/elasticsearch-2.key"
-      xpack.security.http.ssl.certificate: "certs/elasticsearch-2/elasticsearch-2.crt"
-      xpack.security.http.ssl.key: "certs/elasticsearch-2/elasticsearch-2.key"
-    ports:
-      - "9201:9200"
-      - "9301:9300"
-    volumes:
-      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
-      - elasticsearch-2-data:/usr/share/elasticsearch/data
-
-  elasticsearch-3:
-    <<: *elasticsearch-common
-    depends_on:
-      elasticsearch-init:
-        condition: service_completed_successfully
-    environment:
-      <<: *elasticsearch-environment
-      node.name: "elasticsearch-3"
-      xpack.security.transport.ssl.certificate: "certs/elasticsearch-3/elasticsearch-3.crt"
-      xpack.security.transport.ssl.key: "certs/elasticsearch-3/elasticsearch-3.key"
-      xpack.security.http.ssl.certificate: "certs/elasticsearch-3/elasticsearch-3.crt"
-      xpack.security.http.ssl.key: "certs/elasticsearch-3/elasticsearch-3.key"
-    ports:
-      - "9202:9200"
-      - "9302:9300"
-    volumes:
-      - elasticsearch-certs:/usr/share/elasticsearch/config/certs
-      - elasticsearch-3-data:/usr/share/elasticsearch/data
+    restart: no
+    user: root
 
 volumes:
   elasticsearch-certs:

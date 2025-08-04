@@ -14,19 +14,19 @@ x-prometheus-common: &prometheus-common
 
 services:
   prometheus:
-    <<: *prometheus-common
-    ports:
-      - "9090:9090"
+    volumes:
+      - prometheus-data:/prometheus-data
     configs:
       - source: prometheus-cfg
         target: /etc/prometheus/prometheus.yml
-    volumes:
-      - prometheus-data:/prometheus-data
-
-configs:
-  prometheus-cfg:
-    file: ./config/prometheus.yml
+    ports:
+      - "9090:9090"
+    <<: *prometheus-common
 
 volumes:
   prometheus-data:
     driver: local
+
+configs:
+  prometheus-cfg:
+    file: ./config/prometheus.yml

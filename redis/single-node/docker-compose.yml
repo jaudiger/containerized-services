@@ -16,19 +16,19 @@ x-redis-common: &redis-common
 
 services:
   redis:
-    <<: *redis-common
-    ports:
-      - "6379:6379"
+    volumes:
+      - redis-data:/data
     configs:
       - source: redis-cfg
         target: /usr/local/etc/redis/redis.conf
-    volumes:
-      - redis-data:/data
-
-configs:
-  redis-cfg:
-    file: ./config/redis.conf
+    ports:
+      - "6379:6379"
+    <<: *redis-common
 
 volumes:
   redis-data:
     driver: local
+
+configs:
+  redis-cfg:
+    file: ./config/redis.conf
