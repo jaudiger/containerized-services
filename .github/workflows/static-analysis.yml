@@ -1,0 +1,26 @@
+name: Continuous Integration - Static Analysis
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: static-analysis-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Install Brioche
+        uses: brioche-dev/setup-brioche@v1.3.1
+
+      - name: Install dclint
+        run: brioche install -r dclint
+
+      - name: Check linting
+        run: dclint --disable-rule "no-unbound-port-interfaces" --disable-rule "require-quotes-in-ports" --disable-rule "require-project-name-field" --recursive .

@@ -47,6 +47,10 @@ docker compose -f SERVICE/USAGE/docker-compose.yml down --remove-orphans --volum
 
 ## CI / CD
 
+The CI/CD pipeline is configured using GitHub Actions. The workflow is defined in the [`.github/workflows`](.github/workflows) folder:
+
+- Static Analysis (Docker Compose files, GitHub Actions)
+
 Dependabot is configured to automatically update dependencies (Docker Compose).
 
 ## Repository configuration
