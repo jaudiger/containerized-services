@@ -1,5 +1,5 @@
 x-redis-common: &redis-common
-  image: docker.io/redis:8.0.3
+  image: docker.io/redis:8.2.0
   restart: unless-stopped
   entrypoint: redis-server /usr/local/etc/redis/redis.conf
   environment:
