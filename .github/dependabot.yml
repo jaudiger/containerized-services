@@ -8,6 +8,7 @@ updates:
       - "/kafka/**"
       - "/kibana/**"
       - "/mongo/**"
+      - "/mosquitto/**"
       - "/prometheus/**"
       - "/redis/**"
       - "/vault/**"

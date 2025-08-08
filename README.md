@@ -22,6 +22,8 @@ Here is a list of the services that can be deployed using this repository:
 - Mongo:
   - [Cluster](./mongo/cluster)
   - [Single node](./mongo/single-node)
+- Mosquitto:
+  - [Single node](./mosquitto/single-node)
 - Prometheus:
   - [Single node](./prometheus/single-node)
 - Redis:

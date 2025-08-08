@@ -1,0 +1,32 @@
+x-mosquitto-common: &mosquitto-common
+  image: docker.io/eclipse-mosquitto:2.0.22
+  restart: unless-stopped
+  healthcheck:
+    test:
+      - "CMD-SHELL"
+      - |
+        mosquitto_sub -h 127.0.0.1 -p 1883 -t '$$SYS/broker/uptime' -C 1 -W 3 >/dev/null 2>&1
+    interval: 10s
+    timeout: 5s
+    retries: 3
+
+services:
+  mosquitto:
+    volumes:
+      - mosquitto-data:/mosquitto/data
+    configs:
+      - source: mosquitto-cfg
+        target: /mosquitto/config/mosquitto.conf
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+    command: mosquitto -c /mosquitto/config/mosquitto.conf
+    <<: *mosquitto-common
+
+volumes:
+  mosquitto-data:
+    driver: local
+
+configs:
+  mosquitto-cfg:
+    file: ./config/mosquitto.conf
