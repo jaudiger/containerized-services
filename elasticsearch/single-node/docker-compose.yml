@@ -1,5 +1,5 @@
 x-elasticsearch-common: &elasticsearch-common
-  image: docker.io/elasticsearch:9.1.0
+  image: docker.io/elasticsearch:9.1.2
   restart: unless-stopped
   entrypoint: /usr/local/bin/docker-entrypoint.sh eswrapper
   ulimits:
