@@ -1,5 +1,5 @@
 x-elasticsearch-common: &elasticsearch-common
-  image: docker.io/elasticsearch:9.1.2
+  image: docker.io/elasticsearch:9.1.3
   restart: unless-stopped
   entrypoint: /usr/local/bin/docker-entrypoint.sh eswrapper
   ulimits:
@@ -88,7 +88,7 @@ services:
       - "9302:9300"
     <<: *elasticsearch-common
   elasticsearch-init:
-    image: docker.io/elasticsearch:9.1.2
+    image: docker.io/elasticsearch:9.1.3
     volumes:
       - elasticsearch-certs:/usr/share/elasticsearch/config/certs
     entrypoint: >
