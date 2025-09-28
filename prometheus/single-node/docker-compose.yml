@@ -1,5 +1,5 @@
 x-prometheus-common: &prometheus-common
-  image: docker.io/prom/prometheus:v3.5.0
+  image: docker.io/prom/prometheus:v3.6.0
   restart: unless-stopped
   user: root
   entrypoint: prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus-data
