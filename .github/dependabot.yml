@@ -9,6 +9,7 @@ updates:
       - "/kibana/**"
       - "/mongo/**"
       - "/mosquitto/**"
+      - "/postgresql/**"
       - "/prometheus/**"
       - "/rabbitmq/**"
       - "/redis/**"

@@ -24,6 +24,8 @@ Here is a list of the services that can be deployed using this repository:
   - [Single node](./mongo/single-node)
 - Mosquitto:
   - [Single node](./mosquitto/single-node)
+- PostgreSQL:
+  - [Single node](./postgresql/single-node)
 - Prometheus:
   - [Single node](./prometheus/single-node)
 - RabbitMQ:
