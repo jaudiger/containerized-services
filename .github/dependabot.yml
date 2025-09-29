@@ -10,6 +10,7 @@ updates:
       - "/mongo/**"
       - "/mosquitto/**"
       - "/prometheus/**"
+      - "/rabbitmq/**"
       - "/redis/**"
       - "/vault/**"
     schedule:

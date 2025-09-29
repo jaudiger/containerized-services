@@ -26,6 +26,8 @@ Here is a list of the services that can be deployed using this repository:
   - [Single node](./mosquitto/single-node)
 - Prometheus:
   - [Single node](./prometheus/single-node)
+- RabbitMQ:
+  - [Single node](./rabbitmq/single-node)
 - Redis:
   - [Cluster](./redis/cluster)
   - [ReplicaSet](./redis/replica-set)
