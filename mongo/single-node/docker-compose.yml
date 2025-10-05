@@ -1,5 +1,5 @@
 x-mongo-common: &mongo-common
-  image: docker.io/mongo:8.0.14
+  image: docker.io/mongo:8.0.15
   restart: unless-stopped
   command:
     - "mongod"
