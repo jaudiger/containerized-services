@@ -19,6 +19,33 @@ x-mongo-common: &mongo-common
     retries: 3
 
 services:
+  mongo-post-init:
+    image: docker.io/mongo:8.2.1
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_ROOT_USERNAME: "root"
+      MONGO_ROOT_PASSWORD: "password"
+      MONGO_CLIENT_USERNAME: "user"
+      MONGO_CLIENT_PASSWORD: "password"
+      MONGO_CLIENT_DATABASE: "database"
+    entrypoint: >
+      bash -c '
+        # Create the user for the client application
+        mongosh --host mongo --username $${MONGO_ROOT_USERNAME} --password $${MONGO_ROOT_PASSWORD} --authenticationDatabase admin --eval "
+          db = db.getSiblingDB(\"$${MONGO_CLIENT_DATABASE}\");
+          if (!db.getUser(\"$${MONGO_CLIENT_USERNAME}\")) {
+            db.createUser({
+              user: \"$${MONGO_CLIENT_USERNAME}\",
+              pwd: \"$${MONGO_CLIENT_PASSWORD}\",
+              roles: [{ role: \"readWrite\", db: \"$${MONGO_CLIENT_DATABASE}\" }]
+            });
+          }
+        ";
+      '
+    restart: no
+
   mongo:
     volumes:
       - mongo-data:/data/db

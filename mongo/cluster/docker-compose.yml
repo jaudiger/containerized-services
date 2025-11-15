@@ -28,18 +28,62 @@ services:
         condition: service_healthy
       mongo-secondary-2:
         condition: service_healthy
+    environment:
+      MONGO_ROOT_USERNAME: "root"
+      MONGO_ROOT_PASSWORD: "password"
+      MONGO_CLIENT_USERNAME: "user"
+      MONGO_CLIENT_PASSWORD: "password"
+      MONGO_CLIENT_DATABASE: "database"
     entrypoint: >
       bash -c '
-        mongosh --host mongo-primary --username root --password password --authenticationDatabase admin --eval "
-          rs.initiate({
-            _id: \"mongoReplicaSet\",
-            members: [
-              { _id: 0, host: \"mongo-primary:27017\" },
-              { _id: 1, host: \"mongo-secondary-1:27017\" },
-              { _id: 2, host: \"mongo-secondary-2:27017\" }
-            ]
-          });
-          rs.status();
+        # Initialize the replica set
+        mongosh --host mongo-primary --username $${MONGO_ROOT_USERNAME} --password $${MONGO_ROOT_PASSWORD} --authenticationDatabase admin --eval "
+          try {
+            rs.initiate({
+              _id: \"mongoReplicaSet\",
+              members: [
+                { _id: 0, host: \"mongo-primary:27017\" },
+                { _id: 1, host: \"mongo-secondary-1:27017\" },
+                { _id: 2, host: \"mongo-secondary-2:27017\" }
+              ]
+            });
+          } catch (e) {
+            print(\"Error during initializing replica set: \" + e);
+          }
+        ";
+
+        # Wait until the primary is ready
+        elapsed=0
+        while true; do
+          is_primary=$(mongosh --host mongo-primary --username $${MONGO_ROOT_USERNAME} --password $${MONGO_ROOT_PASSWORD} --authenticationDatabase admin --quiet --eval "
+            try {
+              print(rs.isMaster().ismaster);
+            } catch (e) {
+              print(\"\");
+            }
+          " | tr -d "\r\n")
+          if [ "$${is_primary}" = "true" ]; then
+            break
+          fi
+          if [ "$${elapsed}" -ge "120" ]; then
+            echo "Timeout waiting for primary to be ready"
+            exit 1
+          fi
+
+          sleep 2
+          elapsed=$((elapsed + 2))
+        done
+
+        # Create the user for the client application
+        mongosh --host mongo-primary --username $${MONGO_ROOT_USERNAME} --password $${MONGO_ROOT_PASSWORD} --authenticationDatabase admin --eval "
+          db = db.getSiblingDB(\"$${MONGO_CLIENT_DATABASE}\");
+          if (!db.getUser(\"$${MONGO_CLIENT_USERNAME}\")) {
+            db.createUser({
+              user: \"$${MONGO_CLIENT_USERNAME}\",
+              pwd: \"$${MONGO_CLIENT_PASSWORD}\",
+              roles: [{ role: \"readWrite\", db: \"$${MONGO_CLIENT_DATABASE}\" }]
+            });
+          }
         ";
       '
     restart: no
