@@ -52,8 +52,11 @@ services:
           }
         ";
 
+        # Initial wait to give time for the replica set to stabilize
+        sleep 20
+
         # Wait until the primary is ready
-        elapsed=0
+        attempts=0
         while true; do
           is_primary=$(mongosh --host mongo-primary --username $${MONGO_ROOT_USERNAME} --password $${MONGO_ROOT_PASSWORD} --authenticationDatabase admin --quiet --eval "
             try {
@@ -65,13 +68,13 @@ services:
           if [ "$${is_primary}" = "true" ]; then
             break
           fi
-          if [ "$${elapsed}" -ge "120" ]; then
+          if [ "$${attempts}" -ge "10" ]; then
             echo "Timeout waiting for primary to be ready"
             exit 1
           fi
 
-          sleep 2
-          elapsed=$((elapsed + 2))
+          sleep 5
+          attempts=$((attempts + 1))
         done
 
         # Create the user for the client application
