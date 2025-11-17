@@ -21,6 +21,36 @@ x-kafka-common: &kafka-common
     retries: 3
 
 services:
+  kafka-post-init:
+    image: docker.io/apache/kafka:4.0.0
+    depends_on:
+      kafka-1:
+        condition: service_healthy
+      kafka-2:
+        condition: service_healthy
+      kafka-3:
+        condition: service_healthy
+    environment:
+      KAFKA_TOPIC_NAMES: "topic1,topic2"
+    entrypoint: >
+      bash -c '
+        # Wait for the brokers to be ready
+        for i in 1 2 3; do
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-$${i}:9092 --list
+          while [ $$? -ne 0 ]; do
+            sleep 5
+            /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-$${i}:9092 --list
+          done
+        done
+
+        # Create the topics
+        IFS=","
+        for topic in $${KAFKA_TOPIC_NAMES}; do
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --topic "$${topic}" --create --if-not-exists
+        done
+      '
+    restart: no
+
   kafka-1:
     volumes:
       - kafka-1-data:/var/lib/kafka
