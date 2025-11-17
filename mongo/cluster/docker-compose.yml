@@ -33,7 +33,7 @@ services:
       MONGO_ROOT_PASSWORD: "password"
       MONGO_CLIENT_USERNAME: "user"
       MONGO_CLIENT_PASSWORD: "password"
-      MONGO_CLIENT_DATABASE: "database"
+      MONGO_CLIENT_DATABASE: "application"
     entrypoint: >
       bash -c '
         # Initialize the replica set
