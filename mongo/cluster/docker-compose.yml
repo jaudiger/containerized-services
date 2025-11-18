@@ -47,7 +47,7 @@ services:
                 { _id: 2, host: \"mongo-secondary-2:27017\" }
               ]
             });
-          } catch (e) {
+          } catch (err) {
             print(\"Error during initializing replica set: \" + e);
           }
         ";
@@ -61,7 +61,7 @@ services:
           is_primary=$(mongosh --host mongo-primary --username $${MONGO_ROOT_USERNAME} --password $${MONGO_ROOT_PASSWORD} --authenticationDatabase admin --quiet --eval "
             try {
               print(rs.isMaster().ismaster);
-            } catch (e) {
+            } catch (err) {
               print(\"\");
             }
           " | tr -d "\r\n")
