@@ -2,7 +2,13 @@ name: Continuous Integration - Static Analysis
 
 on:
   push:
+    paths:
+      - ".github/workflows/static-analysis.yml"
+      - "**/docker-compose.yml"
   pull_request:
+    paths:
+      - ".github/workflows/static-analysis.yml"
+      - "**/docker-compose.yml"
   workflow_dispatch:
 
 concurrency:
