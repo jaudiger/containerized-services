@@ -1,5 +1,5 @@
 x-kibana-common: &kibana-common
-  image: docker.io/kibana:9.2.3
+  image: docker.io/kibana:9.2.4
   restart: unless-stopped
   entrypoint:
     - "/usr/local/bin/kibana-docker"
