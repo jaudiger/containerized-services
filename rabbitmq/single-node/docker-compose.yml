@@ -1,5 +1,5 @@
 x-rabbitmq-common: &rabbitmq-common
-  image: docker.io/rabbitmq:4.2.2-management
+  image: docker.io/rabbitmq:4.2.3-management
   restart: unless-stopped
   environment:
     RABBITMQ_DEFAULT_USER: "user"
