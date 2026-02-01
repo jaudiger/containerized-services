@@ -1,5 +1,5 @@
 x-mongo-common: &mongo-common
-  image: docker.io/mongo:8.2.3
+  image: docker.io/mongo:8.2.4
   restart: unless-stopped
   command:
     - "mongod"
@@ -20,7 +20,7 @@ x-mongo-common: &mongo-common
 
 services:
   mongo-post-init:
-    image: docker.io/mongo:8.2.3
+    image: docker.io/mongo:8.2.4
     depends_on:
       mongo-primary:
         condition: service_healthy
@@ -92,7 +92,7 @@ services:
     restart: no
 
   mongo-pre-init:
-    image: docker.io/mongo:8.2.3
+    image: docker.io/mongo:8.2.4
     volumes:
       - mongo-security:/etc/mongo/security
     entrypoint: >
