@@ -1,5 +1,5 @@
 x-postgres-common: &postgres-common
-  image: docker.io/postgres:18.1
+  image: docker.io/postgres:18.2
   restart: unless-stopped
   environment:
     POSTGRES_USER: "user"
