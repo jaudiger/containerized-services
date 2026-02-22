@@ -1,5 +1,5 @@
 x-kafka-common: &kafka-common
-  image: docker.io/apache/kafka:4.0.0
+  image: docker.io/apache/kafka:4.2.0
   restart: unless-stopped
   entrypoint: >
     bash -c '
@@ -22,7 +22,7 @@ x-kafka-common: &kafka-common
 
 services:
   kafka-post-init:
-    image: docker.io/apache/kafka:4.0.0
+    image: docker.io/apache/kafka:4.2.0
     depends_on:
       kafka:
         condition: service_healthy
