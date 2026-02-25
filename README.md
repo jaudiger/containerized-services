@@ -1,6 +1,6 @@
 # Containerized services
 
-## Instructions
+## Getting Started
 
 Working in the cloud involves using third-party services to store data for stateless applications, send messages between micro-services, manage authentication, etc. To set up these services locally, I containerize a few of these services. It lets me quickly spawn an instance I'm interested in on my machine. And I tend to always integrate/use/test the most up-to-date version.
 
@@ -50,15 +50,3 @@ To remove the volumes created and start next time from scratch, use the followin
 ```bash
 docker compose -f SERVICE/USAGE/docker-compose.yml down --remove-orphans --volumes
 ```
-
-## CI / CD
-
-The CI/CD pipeline is configured using GitHub Actions. The workflow is defined in the [`.github/workflows`](.github/workflows) folder:
-
-- Static Analysis (Docker Compose files, GitHub Actions)
-
-Dependabot is configured to automatically update dependencies (Docker Compose).
-
-## Repository configuration
-
-The settings of this repository are managed from the [gitops-deployments](https://github.com/jaudiger/gitops-deployments) repository using Terraform. The actual configuration applied is located in the Terraform module [`modules/github-repository`](https://github.com/jaudiger/gitops-deployments/tree/main/modules/github-repository).
