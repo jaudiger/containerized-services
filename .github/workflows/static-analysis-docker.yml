@@ -1,18 +1,18 @@
-name: Continuous Integration - Static Analysis
+name: Continuous Integration - Static Analysis (Docker)
 
 on:
   push:
     paths:
-      - ".github/workflows/static-analysis.yml"
+      - ".github/workflows/static-analysis-docker.yml"
       - "**/docker-compose.yml"
   pull_request:
     paths:
-      - ".github/workflows/static-analysis.yml"
+      - ".github/workflows/static-analysis-docker.yml"
       - "**/docker-compose.yml"
   workflow_dispatch:
 
 concurrency:
-  group: static-analysis-${{ github.ref_name }}
+  group: static-analysis-docker-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
