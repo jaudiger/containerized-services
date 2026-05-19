@@ -30,6 +30,7 @@ jobs:
           filters: |
             docker:
               - '**/docker-compose.yml'
+              - '.github/workflows/ci.yml'
             workflows:
               - '.github/workflows/**'
 
