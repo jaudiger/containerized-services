@@ -1,5 +1,5 @@
 x-vault-common: &vault-common
-  image: docker.io/hashicorp/vault:2.0.0
+  image: docker.io/hashicorp/vault:2.0.1
   restart: unless-stopped
   cap_add:
     - IPC_LOCK
