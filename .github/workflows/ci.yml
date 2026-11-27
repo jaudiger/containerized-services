@@ -34,10 +34,37 @@ jobs:
             workflows:
               - '.github/workflows/**'
 
+  build-docker:
+    needs: changes
+    if: needs.changes.outputs.docker == 'true'
+    uses: jaudiger/reusable-workflows/.github/workflows/build-docker.yml@6d49af28a19223af7709f7cb8c558d528554c617
+    with:
+      paths: &docker_paths |
+        elasticsearch/cluster
+        elasticsearch/secure-cluster
+        elasticsearch/single-node
+        grafana/single-node
+        jaeger/single-node
+        kafka/cluster
+        kafka/single-node
+        kibana/single-node
+        mongo/cluster
+        mongo/single-node
+        mosquitto/single-node
+        postgresql/single-node
+        prometheus/single-node
+        rabbitmq/single-node
+        redis/cluster
+        redis/replica-set
+        redis/single-node
+        vault/single-node
+
   lint-docker:
     needs: changes
     if: needs.changes.outputs.docker == 'true'
     uses: jaudiger/reusable-workflows/.github/workflows/static-analysis-docker.yml@6d49af28a19223af7709f7cb8c558d528554c617
+    with:
+      paths: *docker_paths
 
   lint-actions:
     needs: changes
@@ -46,7 +73,7 @@ jobs:
 
   ci:
     if: always()
-    needs: [lint-docker, lint-actions]
+    needs: [build-docker, lint-docker, lint-actions]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all required checks passed
