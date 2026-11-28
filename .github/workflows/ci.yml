@@ -37,39 +37,41 @@ jobs:
   build-docker:
     needs: changes
     if: needs.changes.outputs.docker == 'true'
-    uses: jaudiger/reusable-workflows/.github/workflows/build-docker.yml@1bd65c113cef6d5ab752504d277f0b0b3c5bdafa
+    uses: jaudiger/reusable-workflows/.github/workflows/build-docker.yml@77e9b299266d6b3ff89ae11b0f0db6076d953478
     with:
       compose-files: &compose_files |
-        elasticsearch/cluster/docker-compose.yml
-        elasticsearch/secure-cluster/docker-compose.yml
-        elasticsearch/single-node/docker-compose.yml
-        grafana/single-node/docker-compose.yml
-        jaeger/single-node/docker-compose.yml
-        kafka/cluster/docker-compose.yml
-        kafka/single-node/docker-compose.yml
-        kibana/single-node/docker-compose.yml
-        mongo/cluster/docker-compose.yml
-        mongo/single-node/docker-compose.yml
-        mosquitto/single-node/docker-compose.yml
-        postgresql/single-node/docker-compose.yml
-        prometheus/single-node/docker-compose.yml
-        rabbitmq/single-node/docker-compose.yml
-        redis/cluster/docker-compose.yml
-        redis/replica-set/docker-compose.yml
-        redis/single-node/docker-compose.yml
-        vault/single-node/docker-compose.yml
+        [
+          {"path": "elasticsearch/cluster/docker-compose.yml"},
+          {"path": "elasticsearch/secure-cluster/docker-compose.yml"},
+          {"path": "elasticsearch/single-node/docker-compose.yml"},
+          {"path": "grafana/single-node/docker-compose.yml"},
+          {"path": "jaeger/single-node/docker-compose.yml"},
+          {"path": "kafka/cluster/docker-compose.yml"},
+          {"path": "kafka/single-node/docker-compose.yml"},
+          {"path": "kibana/single-node/docker-compose.yml"},
+          {"path": "mongo/cluster/docker-compose.yml"},
+          {"path": "mongo/single-node/docker-compose.yml"},
+          {"path": "mosquitto/single-node/docker-compose.yml"},
+          {"path": "postgresql/single-node/docker-compose.yml"},
+          {"path": "prometheus/single-node/docker-compose.yml"},
+          {"path": "rabbitmq/single-node/docker-compose.yml"},
+          {"path": "redis/cluster/docker-compose.yml"},
+          {"path": "redis/replica-set/docker-compose.yml"},
+          {"path": "redis/single-node/docker-compose.yml"},
+          {"path": "vault/single-node/docker-compose.yml"}
+        ]
 
   lint-docker:
     needs: changes
     if: needs.changes.outputs.docker == 'true'
-    uses: jaudiger/reusable-workflows/.github/workflows/static-analysis-docker.yml@1bd65c113cef6d5ab752504d277f0b0b3c5bdafa
+    uses: jaudiger/reusable-workflows/.github/workflows/static-analysis-docker.yml@77e9b299266d6b3ff89ae11b0f0db6076d953478
     with:
       compose-files: *compose_files
 
   lint-actions:
     needs: changes
     if: needs.changes.outputs.workflows == 'true'
-    uses: jaudiger/reusable-workflows/.github/workflows/static-analysis-github-actions.yml@1bd65c113cef6d5ab752504d277f0b0b3c5bdafa
+    uses: jaudiger/reusable-workflows/.github/workflows/static-analysis-github-actions.yml@77e9b299266d6b3ff89ae11b0f0db6076d953478
 
   ci:
     if: always()
